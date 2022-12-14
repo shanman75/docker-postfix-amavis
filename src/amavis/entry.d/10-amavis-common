@@ -83,6 +83,7 @@ amavis_setup_dkim() {
 			local message="$(amavisd genrsa $keyfile $bits 2>&1)"
 			dc_log 4 "$message"
 			amavisd showkeys $domain_main > $txtfile
+			chown amavis $keyfile 
 			#amavisd testkeys $domain_main
 		fi
 		dc_cond_chown $user $DOCKER_DKIM_LIB

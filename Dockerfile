@@ -11,7 +11,7 @@ ARG	REL=latest
 #
 
 FROM	$DIST:$REL AS mini
-LABEL	maintainer=mlan
+LABEL	maintainer=shanman751
 
 ENV	SVDIR=/etc/service \
 	DOCKER_PERSIST_DIR=/srv \
@@ -85,13 +85,17 @@ RUN	source docker-common.sh \
 	postfix-ldap \
 	postfix-mysql \
 	postsrsd \
-#	cyrus-sasl-plain \ # moved back into libsasl
+	postgrey \
 	cyrus-sasl-login \
+	&& mkdir /var/postgrey \
+#	&& $ALLOW_USER /var/postgrey \
+	&& ln -sf /proc/1/fd/1 /var/log/mail.log \
 	&& cp -rlL $DOCKER_CONF_DIR $DOCKER_DIST_DIR \
 	&& docker-service.sh \
 	"syslogd -nO- -l$SYSLOG_LEVEL $SYSLOG_OPTIONS" \
 	"crond -f -c /etc/crontabs" \
 	"postfix start-fg" \
+	"postgrey -i 0.0.0.0:10023 --dbdir=/srv/postgrey --user=$(id -u) --group=$(id -g) $OPTIONS" \
 	&& chown ${DOCKER_APPL_RUNAS}: ${DOCKER_PERSIST_DIR}$DOCKER_MAIL_LIB \
 	&& mv $DOCKER_CONF_DIR/aliases $DOCKER_CONF_DIR/aliases.dist \
 	&& postconf -e mynetworks_style=subnet \
@@ -101,7 +105,7 @@ RUN	source docker-common.sh \
 # state standard smtp, smtps and submission ports
 #
 
-EXPOSE 25 465 587
+EXPOSE 25 465 587 10023
 
 #
 # Rudimentary healthcheck

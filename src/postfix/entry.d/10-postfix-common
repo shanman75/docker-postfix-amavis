@@ -336,3 +336,28 @@ postfix_update_dhparam() {
 		dc_log 4 "[postfix] Cannot regenerate edh since openssl is not installed."
 	fi
 }
+
+
+postfix_download_config(){
+  pwd
+  /usr/local/bin/download_postmaps -d
+}
+
+postfix_add_postgrey(){
+  postconf smtpd_recipient_restrictions=permit_mynetworks,reject_unauth_destination,check_policy_service unix:postgrey/socket,permit
+}
+
+postfix_refresh_postmaps(){
+	if ([ -f /etc/postfix/access ]); then
+		postmap /etc/postfix/access
+	fi
+	if ([ -f /etc/postfix/transport ]); then
+		postmap /etc/postfix/transport
+	fi
+	if ([ -f /etc/postfix/virtual ]); then
+		postmap /etc/postfix/virtual
+	fi
+	if ([ -f /etc/postfix/aliases ]); then
+		postmap /etc/postfix/aliases
+	fi
+}

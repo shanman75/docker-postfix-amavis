@@ -26,4 +26,7 @@ if dc_is_unlocked; then
 	postfix_export_tls_cert
 	postfix_activate_tls_cert
 	postfix_apply_envvars
+	postfix_add_postgrey
 fi
+postfix_download_config
+postfix_refresh_postmaps
