@@ -1,0 +1,41 @@
+version: '3'
+
+services:
+  mta:
+    image: shanman75/postfix-amavis
+    hostname: ${MAIL_SRV-mailgw303}.${MAIL_DOMAIN-egarage.net}
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:25:25"      # SMTP
+      - "127.0.0.1:465:465"    # SMTPS authentication required
+    environment: # Virgin config, ignored on restarts unless FORCE_CONFIG given.
+      - MESSAGE_SIZE_LIMIT=${MESSAGE_SIZE_LIMIT-25600000}
+      - VIRTUAL_TRANSPORT=lmtp:app:2003
+      - SMTP_RELAY_HOSTAUTH=${SMTP_RELAY_HOSTAUTH-}
+      - SMTP_TLS_SECURITY_LEVEL=${SMTP_TLS_SECURITY_LEVEL-}
+      - SMTP_TLS_WRAPPERMODE=${SMTP_TLS_WRAPPERMODE-no}
+      - SMTPD_USE_TLS=yes
+      - LDAP_USER_BASE=ou=${AD_USR_OU-users},${AD_BASE-dc=example,dc=com}
+      - LDAP_QUERY_FILTER_USER=(&(objectclass=${AD_USR_OB-kopano-user})(mail=%s))
+      - LDAP_QUERY_FILTER_ALIAS=(&(objectclass=${AD_USR_OB-kopano-user})(kopanoAliases=%s))
+      - LDAP_QUERY_ATTRS_PASS=uid=user
+      - REGEX_ALIAS=${REGEX_ALIAS-}
+      - DKIM_SELECTOR=${DKIM_SELECTOR-default}
+      - SA_TAG_LEVEL_DEFLT=${SA_TAG_LEVEL_DEFLT-2.0}
+      - SA_DEBUG=${SA_DEBUG-0}
+      - SYSLOG_LEVEL=${SYSLOG_LEVEL-}
+      - LOG_LEVEL=${LOG_LEVEL-0}
+      - RAZOR_REGISTRATION=${RAZOR_REGISTRATION-}
+    volumes:
+      - mta:/srv
+      - /etc/localtime:/etc/localtime:ro        # Use host timezone
+    cap_add: # helps debugging by allowing strace
+      - sys_ptrace
+
+networks:
+  backend:
+
+volumes:
+  mta:
+

@@ -1,0 +1,2 @@
+mkdir -p /srv/postgrey
+chown postgrey /srv/postgrey

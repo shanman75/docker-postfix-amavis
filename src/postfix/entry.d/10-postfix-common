@@ -347,6 +347,33 @@ postfix_add_postgrey(){
   postconf smtpd_recipient_restrictions=permit_mynetworks,reject_unauth_destination,check_policy_service unix:postgrey/socket,permit
 }
 
+postfix_configure_transports()
+{
+postconf unknown_local_recipient_reject_code=551
+postconf unknown_relay_recipient_reject_code=552
+#postconf spfpolicy_time_limit=3600
+config_directory="/etc/postfix"
+
+postconf smtpd_recipient_restrictions='permit_mynetworks,check_recipient_access hash:/etc/postfix/relay_recipients_rejects,reject_unauth_pipelining,reject_unauth_destination,reject_non_fqdn_recipient,check_policy_service unix:private/spfpolicy,check_policy_service unix:/var/spool/postfix/postgrey/socket'
+postconf smtpd_sender_restrictions=reject_non_fqdn_sender,reject_unknown_sender_domain,permit
+postconf relay_domains=$config_directory/domainmaps
+postconf relay_recipient_maps=hash:$config_directory/relay_recipients
+postconf transport_maps=hash:$config_directory/transport
+
+postconf smtpd_delay_reject=yes
+postconf smtpd_helo_required=yes
+postconf smtpd_helo_restrictions='check_helo_access hash:/etc/postfix/helo_access,reject_non_fqdn_hostname,reject_invalid_hostname,permit'
+postconf smtpd_discard_ehlo_keyword_address_maps=cidr:/etc/postfix/ehlo-map.cidr
+postconf alias_maps=hash:/etc/aliases
+postconf alias_database=hash:/etc/aliases
+postconf debug_peer_level=2
+touch $config_directory/relay_recipients
+touch $config_directory/transport
+touch $config_directory/domainmaps
+touch $config_directory/ehlo-map.cidr
+touch $config_directory/helo_access
+}
+
 postfix_refresh_postmaps(){
 	if ([ -f /etc/postfix/access ]); then
 		postmap /etc/postfix/access
