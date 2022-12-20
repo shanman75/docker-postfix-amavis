@@ -37,6 +37,7 @@ while getopts ":d" option; do
       download_config "postfix" "relay_recipients" "relay_recipients"
       download_config "postfix" "relay_recipients_rejects" "relay_recipients_rejects"
       download_config "postfix" "domainmaps" "domainmaps"
+      download_config "postfix" "helo_access" "helo_access"
     exit;;
     \?)
       echo "invalid option"
