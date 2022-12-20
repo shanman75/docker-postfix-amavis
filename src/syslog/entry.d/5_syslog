@@ -1,0 +1,19 @@
+#!/bin/sh
+
+cat > /etc/syslog.conf <<'endmsg'
+# Log all kernel messages, authentication messages of
+# level notice or higher and anything of level err or
+# higher to the console.
+# Don't log private authentication messages!
+*.err;kern.*;auth.notice;authpriv.none /dev/console
+
+# Log anything (except mail) of level info or higher.
+# Don't log private authentication messages!
+*.info;mail.none;authpriv.none         /var/log/messages
+
+# The authpriv file has restricted access.
+authpriv.*                             /var/log/secure
+
+# Log all the mail messages in one place.
+mail.*                                 /var/log/maillog
+endmsg

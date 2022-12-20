@@ -1,3 +1,14 @@
+# C3 mail filter (using mlan/postfix-amavis base)
+This will generate a mailgateway and pull configuration from an object store for the domain and recipient lists supported by the mailgateway.
+
+To use, setup a repository for the information and open it up to anonymous access, then modify the src/postfix/bin/download_postmaps and point it to a new URL/folder
+
+Postmaps will be downloaded on every container start, but the configuration will only be generated at container execute (with a blank volume)
+
+Use the "mta" folder to launch with docker_compose (recommended)
+
+==========
+
 # The `mlan/postfix-amavis` repository
 
 ![travis-ci test](https://img.shields.io/travis/mlan/docker-postfix-amavis.svg?label=build&style=flat-square&logo=travis)

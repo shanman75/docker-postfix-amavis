@@ -354,18 +354,18 @@ postconf unknown_relay_recipient_reject_code=552
 #postconf spfpolicy_time_limit=3600
 config_directory="/etc/postfix"
 
-postconf smtpd_recipient_restrictions='permit_mynetworks,check_recipient_access hash:/etc/postfix/relay_recipients_rejects,reject_unauth_pipelining,reject_unauth_destination,reject_non_fqdn_recipient,check_policy_service unix:private/spfpolicy,check_policy_service unix:/var/spool/postfix/postgrey/socket'
+postconf smtpd_recipient_restrictions='permit_mynetworks,check_recipient_access lmdb:/etc/postfix/relay_recipients_rejects,reject_unauth_pipelining,reject_unauth_destination,reject_non_fqdn_recipient,check_policy_service inet:127.0.0.1:10023'
 postconf smtpd_sender_restrictions=reject_non_fqdn_sender,reject_unknown_sender_domain,permit
 postconf relay_domains=$config_directory/domainmaps
-postconf relay_recipient_maps=hash:$config_directory/relay_recipients
-postconf transport_maps=hash:$config_directory/transport
+postconf relay_recipient_maps=lmdb:$config_directory/relay_recipients
+postconf transport_maps=lmdb:$config_directory/transport
 
 postconf smtpd_delay_reject=yes
 postconf smtpd_helo_required=yes
-postconf smtpd_helo_restrictions='check_helo_access hash:/etc/postfix/helo_access,reject_non_fqdn_hostname,reject_invalid_hostname,permit'
+postconf smtpd_helo_restrictions='check_helo_access lmdb:/etc/postfix/helo_access,reject_non_fqdn_hostname,reject_invalid_hostname,permit'
 postconf smtpd_discard_ehlo_keyword_address_maps=cidr:/etc/postfix/ehlo-map.cidr
-postconf alias_maps=hash:/etc/aliases
-postconf alias_database=hash:/etc/aliases
+postconf alias_maps=lmdb:/etc/aliases
+postconf alias_database=lmdb:/etc/aliases
 postconf debug_peer_level=2
 touch $config_directory/relay_recipients
 touch $config_directory/transport
@@ -387,4 +387,11 @@ postfix_refresh_postmaps(){
 	if ([ -f /etc/postfix/aliases ]); then
 		postmap /etc/postfix/aliases
 	fi
+	if ([ -f /etc/postfix/relay_recipients ]); then
+		postmap /etc/postfix/relay_recipients
+	fi
+	if ([ -f /etc/postfix/relay_recipients_rejects ]); then
+		postmap /etc/postfix/relay_recipients_rejects
+	fi
+	postmap /etc/aliases
 }
