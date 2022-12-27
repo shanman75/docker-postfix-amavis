@@ -393,5 +393,8 @@ postfix_refresh_postmaps(){
 	if ([ -f /etc/postfix/relay_recipients_rejects ]); then
 		postmap /etc/postfix/relay_recipients_rejects
 	fi
+	if ([ -f /etc/postfix/helo_access ]); then
+		postmap /etc/postfix/helo_access
+	fi
 	postmap /etc/aliases
 }

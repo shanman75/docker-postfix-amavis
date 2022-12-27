@@ -44,7 +44,9 @@ amavis_setup_domains() {
 		dc_modify $AMAVIS_CF '\$mydomain' = "'"$domain_main"';"
 		if [ $(echo $domains | wc -w) -gt 1 ]; then
 			dc_modify $AMAVIS_CF '@local_domains_maps' = '( [".$mydomain", '$domain_extra'] );'
+			#dc_addafter $AMAVIS_CF '^@local_domain_maps' 'read_hash(\%local_domains, ''/etc/postfix/domainmaps'';'
 		fi
+		sed -i "s/\@local_domains_maps.*/read_hash(\\\%local_domains, '\/etc\/postfix\/domainmaps');/g" /etc/amavis/amavisd.conf
 	fi
 }
 

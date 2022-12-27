@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if [ ! -z $RSYSLOG_TARGET ]; then
+
+cat >> /etc/rsyslog.conf <<'endmsg'
+*.* action(
+        type="omfwd"
+endmsg
+echo "        target=\"$RSYSLOG_TARGET\"" >> /etc/rsyslog.conf
+cat >> /etc/rsyslog.conf <<'endmsg'
+        port="514"
+        protocol="tcp"
+        queue.filename="fwdRule1"  # unique name prefix for spool files
+        queue.type="LinkedList"
+        queue.maxDiskSpace="256m"
+        queue.saveOnShutdown="on"
+        action.resumeRetryCount="-1"
+        action.resumeInterval="30"
+)
+endmsg
+fi
+

@@ -80,6 +80,7 @@ RUN	source docker-common.sh \
 	$DOCKER_SPOOL_DIR \
 	&& mkdir -p $DOCKER_ACME_SSL_DIR \
 	&& apk --no-cache --update add \
+        rsyslog \
 	runit \
 	postfix \
 	postfix-ldap \
@@ -87,15 +88,17 @@ RUN	source docker-common.sh \
 	postsrsd \
 	postgrey \
 	cyrus-sasl-login \
+	logrotate \
 	&& mkdir /var/postgrey \
 #	&& $ALLOW_USER /var/postgrey \
 	&& ln -sf /proc/1/fd/1 /var/log/mail.log \
 	&& cp -rlL $DOCKER_CONF_DIR $DOCKER_DIST_DIR \
 	&& docker-service.sh \
-	"syslogd -nO- -l$SYSLOG_LEVEL $SYSLOG_OPTIONS" \
+	"/usr/sbin/rsyslogd -n" \
 	"crond -f -c /etc/crontabs" \
 	"postfix start-fg" \
 	"postgrey -i 0.0.0.0:10023 --dbdir=/srv/postgrey --user=$(id -u) --group=$(id -g) $OPTIONS" \
+	&& dc_comment /etc/rsyslog.conf module\(load=\"imklog\"\) \
 	&& chown ${DOCKER_APPL_RUNAS}: ${DOCKER_PERSIST_DIR}$DOCKER_MAIL_LIB \
 	&& mv $DOCKER_CONF_DIR/aliases $DOCKER_CONF_DIR/aliases.dist \
 	&& postconf -e mynetworks_style=subnet \

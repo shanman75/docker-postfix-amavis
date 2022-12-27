@@ -30,7 +30,6 @@ build: build_$(BLD_TGT)
 build_%: Dockerfile
 	docker build $(BLD_ARG) --target $* \
 	$(addprefix --tag $(BLD_REPO):,$(call _version,$*,$(BLD_VER))) .
-	docker tag shanman75/postfix-amavis us-central1-docker.pkg.dev/sonic-falcon-368322/spinksdkr/postfix-amavis
 
 variables:
 	make -pn | grep -A1 "^# makefile"| grep -v "^#\|^--" | sort | uniq
@@ -39,7 +38,10 @@ pushgcp:
 	gcloud auth configure-docker us-central1-docker.pkg.dev
 	gcloud auth login
 	gcloud auth print-access-token | docker login -u oauth2accesstoken --password-stdin https://us-central1-docker.pkg.dev
+	docker tag shanman75/postfix-amavis us-central1-docker.pkg.dev/sonic-falcon-368322/spinksdkr/postfix-amavis
+	docker tag shanman75/postfix-amavis us-central1-docker.pkg.dev/helical-kayak-235319/shanrepo/postfix-amavis		
 	docker push us-central1-docker.pkg.dev/sonic-falcon-368322/spinksdkr/postfix-amavis
+	docker push us-central1-docker.pkg.dev/helical-kayak-235319/shanrepo/postfix-amavis
 
 ps:
 	docker ps -a
