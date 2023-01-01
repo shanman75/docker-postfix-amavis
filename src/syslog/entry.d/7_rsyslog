@@ -1,5 +1,16 @@
 #!/bin/sh
 
+
+mkdir -p /srv/rsyslog
+
+if [ ! -f /srv/rsyslog/rsyslog.conf ]; then
+  cp -p /etc/rsyslog.conf /srv/rsyslog
+fi
+
+rm /etc/rsyslog.conf
+ln -s /srv/rsyslog/rsyslog.conf /etc/rsyslog.conf
+
+if dc_is_unlocked; then
 if [ ! -z $RSYSLOG_TARGET ]; then
 
 cat >> /etc/rsyslog.conf <<'endmsg'
@@ -17,6 +28,8 @@ cat >> /etc/rsyslog.conf <<'endmsg'
         action.resumeRetryCount="-1"
         action.resumeInterval="30"
 )
+mail.*		/var/log/maillog
+
 endmsg
 fi
-
+fi
